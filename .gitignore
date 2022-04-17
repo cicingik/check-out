@@ -13,3 +13,20 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+/Godeps/
+
+.env
+.idea
+.vscode
+.envrc
+.envrc.prod
+.envrc.staging
+.envrc.local
+bardock-development
+./bardock
+sample
+files/*
+NOTES
+*.bin
+tmp/*
