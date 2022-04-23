@@ -34,7 +34,6 @@ func (h *DeliveryHTTPEngine) InitMiddleware(appMiddleware ...func(http.Handler) 
 	//rateLimit := customMiddleware.RateLimit(1*time.Second, 3)
 
 	c.Use(middleware.RequestID)
-	c.Use(middleware.AllowContentType("application/json", "multipart/form-data"))
 	c.Use(middleware.RealIP)
 	c.Use(middleware.Logger)
 	c.Use(middleware.Recoverer)
