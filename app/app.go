@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"fmt"
-
 	"github.com/cicingik/check-out/config"
 	"github.com/cicingik/check-out/http"
 	"github.com/cicingik/check-out/repository/postgre"

@@ -8,6 +8,7 @@ import (
 	gormtrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/jinzhu/gorm"
 )
 
+// Establish relationship between database connection and active request
 func ContextualizeDb(db *postgre.DbEngine) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
