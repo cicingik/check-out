@@ -8,6 +8,7 @@ input PagingQuery {
 }
 
 input NewCart {
+  clientId: Int!
   sku: String!
   quantity: Int!
 }
@@ -29,11 +30,18 @@ input NewPromo {
 }
 
 input CheckOutItem {
-    contents: [NewCart!]!
+    clientId: Int!
+    contents: [Int!]!
+}
+
+input AddToCartItem {
+    clientId: Int!
+    contents: NewCart!
 }
 
 type Cart {
   id: Int!
+  clientId: Int!
   sku: String!
   quantity: Int!
 }
@@ -96,4 +104,5 @@ type Mutation {
   createPromo(input: NewPromo): Promo!
   updateProduct(input: NewProduct): Product!
   updatePromo(input: NewPromo): Promo!
+  addCart(input: AddToCartItem!): Cart!
 }

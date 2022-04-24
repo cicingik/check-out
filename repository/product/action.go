@@ -56,10 +56,11 @@ func (r *ProductRepository) FindProduct(ctx context.Context, sku string) (result
 	return result, nil
 }
 
-func (r *ProductRepository) CheckProductStock(ctx context.Context, checkOutItem []database.Cart) (productStock []database.Product, trx *gorm.DB, err error) {
+func (r *ProductRepository) CheckProductStock(ctx context.Context, coDetail database.CheckOutItem) (productStock []database.Product, trx *gorm.DB, err error) {
 	var checkOutItemCode []string
 	product := database.InitProduct(ctx, r.DB.G)
 	trx = r.DB.G
+	checkOutItem := coDetail.Contents
 
 	coItem := make(map[string]int)
 	for i := 0; i < len(checkOutItem); i++ {
@@ -83,9 +84,10 @@ func (r *ProductRepository) CheckProductStock(ctx context.Context, checkOutItem 
 	return productStock, trx, nil
 }
 
-func (r *ProductRepository) Purchase(ctx context.Context, trx *gorm.DB, checkOutItem []database.Cart, productStock []database.Product) (result float64, err error) {
+func (r *ProductRepository) Purchase(ctx context.Context, trx *gorm.DB, coDetail database.CheckOutItem, productStock []database.Product) (result float64, err error) {
 	promo := database.InitPromo(ctx, r.DB.G)
 	product := database.InitProduct(ctx, r.DB.G)
+	checkOutItem := coDetail.Contents
 
 	coItem := make(map[string]int)
 	for i := 0; i < len(checkOutItem); i++ {
@@ -145,6 +147,8 @@ func (r *ProductRepository) Purchase(ctx context.Context, trx *gorm.DB, checkOut
 			_, _ = product.Update(trx, item)
 		}
 	}
+
+	trx.Commit()
 
 	return totalPayment, nil
 }

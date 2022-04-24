@@ -11,18 +11,20 @@ ENV GO111MODULE=on \
     GOARCH=amd64
 
 WORKDIR /app
-COPY ./go.mod ./go.sum /app/
 
-RUN go mod download
 
 COPY . /app
-RUN set -exuo pipefail \
-    && go build -a -i \
-        -ldflags "-w -s \
-            -X \"github.com/cicingik/check-out.CommitMsg=${COMMIT_MSG}\" \
-            -X \"github.com/cicingik/check-out.CommitHash=${COMMIT}\" \
-            -X \"github.com/cicingik/check-out.AppVersion=${GIT_TAG}\" \
-            -X \"github.com/cicingik/check-out.ReleaseVersion=${BUILD_TAG}\"" \
+RUN set -euo pipefail \
+    && cd /app \
+    && go mod download
+
+RUN echo "Building binary..." \
+    && go build -a -v \
+        -ldflags "\
+            -X \"github.com/cicingik/check-out/config.CommitMsg=${COMMIT_MSG}\" \
+            -X \"github.com/cicingik/check-out/config.CommitHash=${COMMIT}\" \
+            -X \"github.com/cicingik/check-out/config.AppVersion=${GIT_TAG}\" \
+            -X \"github.com/cicingik/check-out/config.ReleaseVersion=${BUILD_TAG}\"" \
         -o checkout \
         ${APP_ENTRYPOINT}
 

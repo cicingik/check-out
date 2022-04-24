@@ -2,8 +2,14 @@
 
 package model
 
+type AddToCartItem struct {
+	ClientID int      `json:"clientId"`
+	Contents *NewCart `json:"contents"`
+}
+
 type Cart struct {
 	ID       int    `json:"id"`
+	ClientID int    `json:"clientId"`
 	Sku      string `json:"sku"`
 	Quantity int    `json:"quantity"`
 }
@@ -14,10 +20,12 @@ type Carts struct {
 }
 
 type CheckOutItem struct {
-	Contents []*NewCart `json:"contents"`
+	ClientID int   `json:"clientId"`
+	Contents []int `json:"contents"`
 }
 
 type NewCart struct {
+	ClientID int    `json:"clientId"`
 	Sku      string `json:"sku"`
 	Quantity int    `json:"quantity"`
 }

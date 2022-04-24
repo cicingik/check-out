@@ -3,6 +3,7 @@ CREATE SCHEMA IF NOT EXISTS ecommerce;
 CREATE TABLE IF NOT EXISTS ecommerce.carts
 (
     id         bigserial primary key,
+    client_id  bigint      not null,
     sku        varchar(50) not null,
     quantity   int         not null,
     status     int         not null,
