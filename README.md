@@ -20,6 +20,7 @@ createProduct(input: NewProduct): Product!
 createPromo(input: NewPromo): Promo!
 updateProduct(input: NewProduct): Product!
 updatePromo(input: NewPromo): Promo!
+addCart(input: AddToCartItem!): Cart!
 ```
 
 ## Requirement
