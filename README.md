@@ -47,7 +47,9 @@ direnv allow .
 
 do this each time you change value inside the `.envrc`
 
-3. run server on auto-reload mode
+3. run `sql/create.sql` for generate database
+
+4. run server on auto-reload mode
 
 ```shell
 make serve

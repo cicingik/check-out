@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS ecommerce.carts
     client_id  bigint      not null,
     sku        varchar(50) not null,
     quantity   int         not null,
-    status     int         not null,
+    is_active  bool        not null,
     created_at timestamp default now(),
     updated_at timestamp default now(),
     deleted_at timestamp
@@ -51,10 +51,10 @@ VALUES ('120P90', 'Google Home', 49.99, 10),
                              price    = EXCLUDED.price,
                              quantity = EXCLUDED.quantity;
 
-INSERT INTO ecommerce.promo (sku, promo_type, minimal_purchased, bonus_product_sku, discount)
-VALUES ('43N23P', 'free_item', 1, '234123', 0.0),
-       ('120P90', 'free_item', 2, '120P90', 0.0),
-       ('A304SD', 'discount', 3, null, 10.0)
+INSERT INTO ecommerce.promo (sku, promo_type, minimal_purchased, bonus_product_sku, discount, is_active)
+VALUES ('43N23P', 'free_item', 1, '234123', 0.0, true),
+       ('120P90', 'free_item', 2, '120P90', 0.0, true),
+       ('A304SD', 'discount', 3, null, 10.0, true)
     ON CONFLICT (sku) DO UPDATE
                              SET promo_type        = EXCLUDED.promo_type,
                              minimal_purchased = EXCLUDED.minimal_purchased,
