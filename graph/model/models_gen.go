@@ -9,6 +9,11 @@ type Cart struct {
 }
 
 type Carts struct {
+	Edges    []*Cart   `json:"edges"`
+	PageInfo *PageInfo `json:"pageInfo"`
+}
+
+type CheckOutItem struct {
 	Contents []*NewCart `json:"contents"`
 }
 
@@ -30,6 +35,19 @@ type NewPromo struct {
 	MinimalPurchased int     `json:"minimalPurchased"`
 	BonusProductSku  string  `json:"bonusProductSku"`
 	Discount         float64 `json:"discount"`
+	IsActive         bool    `json:"isActive"`
+}
+
+type PageInfo struct {
+	After     int `json:"after"`
+	Before    int `json:"before"`
+	TotalPage int `json:"totalPage"`
+	Page      int `json:"page"`
+}
+
+type PagingQuery struct {
+	Page  int `json:"page"`
+	Limit int `json:"limit"`
 }
 
 type Product struct {
@@ -40,6 +58,11 @@ type Product struct {
 	Quantity int     `json:"quantity"`
 }
 
+type Products struct {
+	Edges    []*Product `json:"edges"`
+	PageInfo *PageInfo  `json:"pageInfo"`
+}
+
 type Promo struct {
 	ID               int     `json:"id"`
 	Sku              string  `json:"sku"`
@@ -47,16 +70,14 @@ type Promo struct {
 	MinimalPurchased int     `json:"minimalPurchased"`
 	BonusProductSku  string  `json:"bonusProductSku"`
 	Discount         float64 `json:"discount"`
+	IsActive         bool    `json:"isActive"`
+}
+
+type Promos struct {
+	Edges    []*Promo  `json:"edges"`
+	PageInfo *PageInfo `json:"pageInfo"`
 }
 
 type ResponseCheckout struct {
 	Total float64 `json:"total"`
-}
-
-type ResponseCreated struct {
-	ID int `json:"id"`
-}
-
-type ResponseUpdated struct {
-	Status string `json:"status"`
 }

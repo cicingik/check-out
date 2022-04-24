@@ -2,13 +2,14 @@
 #
 # https://gqlgen.com/getting-started/
 
+input PagingQuery {
+  page: Int!
+  limit: Int!
+}
+
 input NewCart {
   sku: String!
   quantity: Int!
-}
-
-input Carts{
-  contents: [NewCart!]!
 }
 
 input NewProduct {
@@ -24,6 +25,11 @@ input NewPromo {
   minimalPurchased: Int!
   bonusProductSku: String!
   discount: Float!
+  isActive: Boolean!
+}
+
+input CheckOutItem {
+    contents: [NewCart!]!
 }
 
 type Cart {
@@ -47,33 +53,47 @@ type Promo {
   minimalPurchased: Int!
   bonusProductSku: String!
   discount: Float!
-}
-
-type Query {
-  product(sku: String!): Product!
-  products: [Product!]!
-  promo(sku: String!): Promo!
-  promolist: [Promo!]!
-  cartlist: [Cart]!
-  checkout(input: Carts): ResponseCheckout!
-}
-
-type Mutation {
-  createProduct(input: NewProduct): ResponseCreated!
-  updateProduct(input: NewProduct): ResponseUpdated!
-  createPromo(input: NewPromo): ResponseCreated!
-  updatePromo(input: NewPromo): ResponseUpdated!
-  addCart(input:NewCart): Cart!
-}
-
-type ResponseCreated {
-  id: Int!
-}
-
-type ResponseUpdated {
-  status: String!
+  isActive: Boolean!
 }
 
 type ResponseCheckout {
   total: Float!
+}
+
+type Products {
+  edges: [Product!]!
+  pageInfo: PageInfo!
+}
+
+type Promos {
+  edges: [Promo!]!
+  pageInfo: PageInfo!
+}
+
+type Carts {
+  edges: [Cart!]!
+  pageInfo: PageInfo!
+}
+
+type PageInfo {
+  after: Int!
+  before: Int!
+  totalPage: Int!
+  page: Int!
+}
+
+type Query {
+  product(sku: String!): Product!
+  allProducts(param: PagingQuery!): Products!
+  promo(sku: String!): Promo!
+  allActivePromo(param: PagingQuery!): Promos!
+  cartList(param: PagingQuery!): Carts!
+  checkout(input: CheckOutItem): ResponseCheckout!
+}
+
+type Mutation {
+  createProduct(input: NewProduct): Product!
+  createPromo(input: NewPromo): Promo!
+  updateProduct(input: NewProduct): Product!
+  updatePromo(input: NewPromo): Promo!
 }

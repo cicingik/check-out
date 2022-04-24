@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS ecommerce.promo
     minimal_purchased int,
     bonus_product_sku varchar(100),
     discount          float,
+    is_active         bool,
     created_at        timestamp default now(),
     updated_at        timestamp default now(),
     deleted_at        timestamp
