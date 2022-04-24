@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+
 	"github.com/cicingik/check-out/graph/generated"
 	"github.com/cicingik/check-out/graph/model"
 	"github.com/cicingik/check-out/models/database"
@@ -105,6 +106,37 @@ func (r *mutationResolver) UpdatePromo(ctx context.Context, input *model.NewProm
 		BonusProductSku:  result.BonusProductSku,
 		Discount:         result.Discount,
 		IsActive:         result.IsActive,
+	}
+
+	return &resp, nil
+}
+
+func (r *mutationResolver) AddCart(ctx context.Context, input model.AddToCartItem) (*model.Cart, error) {
+	cartItem := []database.Cart{
+		{
+			Sku:      input.Contents.Sku,
+			Quantity: input.Contents.Quantity,
+			IsActive: true,
+		},
+	}
+
+	_, trx, err := r.product.CheckProductStock(ctx, database.CheckOutItem{
+		ClientId: input.ClientID,
+		Contents: cartItem,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.cart.Create(ctx, trx, cartItem[0])
+	if err != nil {
+		return nil, err
+	}
+	resp := model.Cart{
+		ID:       result.ID,
+		ClientID: result.ClientId,
+		Sku:      result.Sku,
+		Quantity: result.Quantity,
 	}
 
 	return &resp, nil
@@ -230,6 +262,7 @@ func (r *queryResolver) CartList(ctx context.Context, param model.PagingQuery) (
 	for _, crt := range result.Cart {
 		resp.Edges = append(resp.Edges, &model.Cart{
 			ID:       crt.ID,
+			ClientID: crt.ClientId,
 			Sku:      crt.Sku,
 			Quantity: crt.Quantity,
 		})
@@ -247,22 +280,23 @@ func (r *queryResolver) CartList(ctx context.Context, param model.PagingQuery) (
 
 func (r *queryResolver) Checkout(ctx context.Context, input *model.CheckOutItem) (*model.ResponseCheckout, error) {
 	var (
-		checkOutItem []database.Cart
+		checkOutItem database.CheckOutItem
 	)
 
 	if input == nil || input.Contents == nil {
 		return &model.ResponseCheckout{Total: 0}, nil
 	}
 
-	// transform to list of cart
+	// get all cart item by id
 	for _, item := range input.Contents {
-		checkOutItem = append(checkOutItem, database.Cart{
-			Sku:      item.Sku,
-			Quantity: item.Quantity,
-		})
-
+		cartItem, err := r.cart.FindCartById(ctx, item)
+		if err != nil {
+			return nil, err
+		}
+		checkOutItem.Contents = append(checkOutItem.Contents, cartItem)
 	}
 
+	//validate stock and purchase amount
 	productStock, trx, err := r.product.CheckProductStock(ctx, checkOutItem)
 	if err != nil {
 		return nil, err
