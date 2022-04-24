@@ -2,10 +2,12 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"github.com/cicingik/check-out/config"
-	"github.com/cicingik/check-out/http"
+	"github.com/cicingik/check-out/delivery"
+	"github.com/cicingik/check-out/repository/cart"
 	"github.com/cicingik/check-out/repository/postgre"
+	"github.com/cicingik/check-out/repository/product"
+	"github.com/cicingik/check-out/repository/promo"
 	"go.uber.org/fx"
 )
 
@@ -20,6 +22,9 @@ func NewWebApplication(cfg *config.AppConfig) (*WebApplication, error) {
 
 	container := fx.New(
 		coreServiceProviders(cfg),
+		cart.CartRepositoryModule,
+		promo.PromoRepositoryModule,
+		product.ProductRepositoryModule,
 		fx.Invoke(initService),
 	)
 
@@ -42,11 +47,6 @@ func NewDatabase(lifecycle fx.Lifecycle, cfg *config.AppConfig) *postgre.DbEngin
 
 	lifecycle.Append(fx.Hook{
 		OnStop: func(ctx context.Context) error {
-			err := db.G.Close()
-			if err != nil {
-				err = fmt.Errorf("error closing database connection: %s", err)
-				return err
-			}
 			return nil
 		},
 	})
@@ -57,13 +57,10 @@ func NewDatabase(lifecycle fx.Lifecycle, cfg *config.AppConfig) *postgre.DbEngin
 func NewHttpServer(
 	lifecycle fx.Lifecycle,
 	cfg *config.AppConfig,
-	db *postgre.DbEngine,
-) *http.DeliveryHTTPEngine {
-	httpServer := http.NewHTTPServer(cfg)
+) *delivery.DeliveryHTTPEngine {
+	httpServer := delivery.NewHTTPServer(cfg)
 
-	httpServer.InitMiddleware(
-		ContextualizeDb(db),
-	)
+	httpServer.InitMiddleware()
 
 	lifecycle.Append(fx.Hook{
 		OnStart: func(context.Context) error {
