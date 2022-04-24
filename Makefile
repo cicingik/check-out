@@ -9,7 +9,6 @@ DOCKER_IMAGE_TAG ?= "asia.gcr.io/cicingik/check-out:local-latest"
 
 APP_PID      = /tmp/checkout.pid
 APP_NAME        = ./checkout
-APP_ENTRYPOINT ?= ./cmd/checkout
 BUILD_TAG      ?= development
 
 .PHONY: restart
@@ -41,8 +40,8 @@ lint:  ## Lint this codebase
 compile_dev:  ## Compile dev version of application
 	@echo "Compiling application with tag: ${BUILD_TAG}..."
 	CGO_ENABLED=1 go build \
-		 -i -v -race  \
-		-ldflags="\
+		 -a -v \
+		-ldflags="-w -s \
 			-X \"github.com/cicingik/check-out/config.BuildTime=${BUILD_TIME}\" \
 			-X \"github.com/cicingik/check-out/config.CommitMsg=${COMMIT_MSG}\" \
 			-X \"github.com/cicingik/check-out/config.CommitHash=${COMMIT}\" \
@@ -50,14 +49,14 @@ compile_dev:  ## Compile dev version of application
 			-X \"github.com/cicingik/check-out/config.ReleaseVersion=${BUILD_TAG}\"" \
 		-tags ${BUILD_TAG} \
 		-o $(APP_NAME)-$(BUILD_TAG) \
-		${APP_ENTRYPOINT}
+		./cmd/checkout/main.go
 
 
 compile:  ## Build binary version of application
 	@echo "Compiling application with tag: ${BUILD_TAG}..."
 	CGO_ENABLED=1 go build \
-		 -i -v -race -a  \
-		-ldflags="\
+		 -a -v \
+		-ldflags="-w -s \
 			-X \"github.com/cicingik/check-out/config.BuildTime=${BUILD_TIME}\" \
 			-X \"github.com/cicingik/check-out/config.CommitMsg=${COMMIT_MSG}\" \
 			-X \"github.com/cicingik/check-out/config.CommitHash=${COMMIT}\" \
@@ -65,7 +64,7 @@ compile:  ## Build binary version of application
 			-X \"github.com/cicingik/check-out/config.ReleaseVersion=${BUILD_TAG}\"" \
 		-tags production \
 		-o $(APP_NAME)-production \
-		${APP_ENTRYPOINT}
+		./cmd/checkout/main.go
 
 
 .PHONY: app-image
@@ -74,11 +73,11 @@ app-image:  ## Create a docker image
 	@docker build \
 		--rm \
  		--compress \
+ 		--build-arg "BUILD_TIME=${BUILD_TIME}" \
 		--build-arg "COMMIT_MSG=${COMMIT_MSG}" \
  		--build-arg "COMMIT=${COMMIT}" \
  		--build-arg "GIT_TAG=${GIT_TAG}" \
  		--build-arg "BUILD_TAG=${BUILD_TAG}" \
-		--build-arg "APP_ENTRYPOINT=${APP_ENTRYPOINT}" \
  		-t ${DOCKER_IMAGE_TAG} \
  		-f Dockerfile .
 

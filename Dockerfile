@@ -1,32 +1,30 @@
-FROM golang:1.16.15-alpine3.14 as builder
+FROM golang:1.16-alpine3.14 as builder
 ARG COMMIT_MSG
 ARG COMMIT
 ARG GIT_TAG
+ARG BUILD_TIME
 ARG BUILD_TAG
-ARG APP_ENTRYPOINT=./cmd/checkout
 
 ENV GO111MODULE=on \
     CGO_ENABLED=1 \
-    GOOS=linux \
-    GOARCH=amd64
+    GOOS=linux
 
 WORKDIR /app
-
-
 COPY . /app
-RUN set -euo pipefail \
-    && cd /app \
-    && go mod download
 
-RUN echo "Building binary..." \
-    && go build -a -v \
-        -ldflags "\
-            -X \"github.com/cicingik/check-out/config.CommitMsg=${COMMIT_MSG}\" \
-            -X \"github.com/cicingik/check-out/config.CommitHash=${COMMIT}\" \
-            -X \"github.com/cicingik/check-out/config.AppVersion=${GIT_TAG}\" \
-            -X \"github.com/cicingik/check-out/config.ReleaseVersion=${BUILD_TAG}\"" \
-        -o checkout \
-        ${APP_ENTRYPOINT}
+RUN set -e \
+    && cd /app \
+    && go mod download \
+    && echo "Building binary..." \
+        && go build -a -v -i \
+            -ldflags "-w \
+                -X \"github.com/cicingik/check-out/config.BuildTime=${BUILD_TIME}\" \
+                -X \"github.com/cicingik/check-out/config.CommitMsg=${COMMIT_MSG}\" \
+                -X \"github.com/cicingik/check-out/config.CommitHash=${COMMIT}\" \
+                -X \"github.com/cicingik/check-out/config.AppVersion=${GIT_TAG}\" \
+                -X \"github.com/cicingik/check-out/config.ReleaseVersion=${BUILD_TAG}\"" \
+            -tags ${BUILD_TAG} \
+            -o checkout
 
 FROM alpine:3.14
 LABEL author="dany <danysatyanegara@gmail.com>" \
@@ -39,7 +37,6 @@ WORKDIR /app/
 COPY --from=builder /app/checkout .
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
-COPY data /app/data
 
 EXPOSE ${CO_HTTP_PORT_BIND}
 CMD [ "/app/checkout" ]

@@ -49,10 +49,16 @@ do this each time you change value inside the `.envrc`
 
 3. run `sql/create.sql` for generate database
 
-4. run server on auto-reload mode
+4. run server on
 
-```shell
-make serve
+   auto-reload mode
+    ```shell
+    make serve
+    ```
+
+    go run
+    ```shell
+    make run
 ```
 
 ## Documentation
